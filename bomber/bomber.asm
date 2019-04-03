@@ -114,29 +114,7 @@ Reset:
 StartFrame:
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Calculations and tasks performed pre-VBLANK
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    lda JetXPos
-    ldy #0
-    jsr SetObjectXPos        ; set player0 horizontal position
-
-    lda BomberXPos
-    ldy #1
-    jsr SetObjectXPos        ; set player1 horizontal position
-
-    lda MissileXPos
-    ldy #2
-    jsr SetObjectXPos        ; set missile horizontal position
-
-    jsr CalculateDigitOffset ; calculate scoreboard digits lookup table offset
-
-    jsr GenerateJetSound     ; configure and enable jet audio
-
-    sta WSYNC
-    sta HMOVE                ; apply horizontal offsets previously set
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Display VSYNC and VBLANK
+;; Display 3 lines of VSYNC
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
     lda #2
     sta VBLANK               ; turn on VBLANK
@@ -146,15 +124,42 @@ StartFrame:
     REPEND
     lda #0
     sta VSYNC                ; turn off VSYNC
-    REPEAT 37
-        sta WSYNC            ; displays 37 recommended lines of VBLANK
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Calculations and tasks performed pre-VBLANK
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    lda JetXPos
+    ldy #0
+    jsr SetObjectXPos        ; set player0 horizontal position (1 WSYNC)
+
+    lda BomberXPos
+    ldy #1
+    jsr SetObjectXPos        ; set player1 horizontal position (1 WSYNC)
+
+    lda MissileXPos
+    ldy #2
+    jsr SetObjectXPos        ; set missile horizontal position (1 WSYNC)
+
+    jsr CalculateDigitOffset ; calculate scoreboard digits lookup table offset
+
+    jsr GenerateJetSound     ; configure and enable jet audio
+
+    sta WSYNC                ; wait until the WSYNC from the TIA
+    sta HMOVE                ; apply horizontal offsets previously set
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Display the remaining lines of VBLANK (37 minus the 4 used above)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    REPEAT 33
+        sta WSYNC            ; displays 33 remaining lines of VBLANK
     REPEND
+    lda #0
     sta VBLANK               ; turn off VBLANK
 
-    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    ;; Display the first 2-line kernel of visible scanlines with scoreboard digits
-    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    ScoreboardVisibleLine:
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Display the first 2-line kernel of visible scanlines with scoreboard digits
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+ScoreboardVisibleLine:
     lda #0                   ; clear TIA registers before each new frame
     sta PF0
     sta PF1
