@@ -52,6 +52,7 @@ StartFrame:
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Set player horizontal position while in VBLANK
+;; Here we are using 2 WSYNCs (2 lines) of our 37 VBLANK lines
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
     lda P0XPos     ; load register A with desired X position
     and #$7F       ; same as AND 01111111, forces bit 7 to zero
@@ -76,9 +77,9 @@ DivideLoop:
     sta HMOVE      ; apply the fine position offset
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Let the TIA output the 37 recommended lines of VBLANK
+;; Let the TIA output the remaining 35 lines of VBLANK (37 - 2)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    REPEAT 37
+    REPEAT 35
         sta WSYNC
     REPEND
 
