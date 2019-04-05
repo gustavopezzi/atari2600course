@@ -75,12 +75,6 @@ Reset:
         bne .SkipMissileDraw  ; if is not equal, skip the draw of missile0
         inc MissileYPos       ; else, increase y-position of the bullet/ball
         lda #%00000010        ; and set ENABL second bit to enable missile
-
-        ;pha                      ; save the value of A in the stack
-        ;lda #$1E                 ; use new A value to define color of the missile
-        ;sta COLUP0               ; set missile color by setting player0 color
-        ;pla                      ; pulls previous value of A saved in the stack
-
 .SkipMissileDraw
         sta ENAM0             ; store correct value in the TIA missile register
     ENDM
