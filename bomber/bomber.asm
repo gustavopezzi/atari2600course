@@ -477,6 +477,7 @@ GetRandomEnemyPos subroutine
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Subroutine to handle scoreboard digits to be displayed on the screen
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; This is stored using BCD, so the display will be displayed in hex numbers.
 ;; Converts the high and low nibbles of the variables Score and Timer
 ;; into offsets into the digit lookup table so the values can be displayed.
 ;; Each digit has a height of 5 bytes in the lookup table.
@@ -488,7 +489,7 @@ GetRandomEnemyPos subroutine
 ;; For the upper nibble, since it is already times 16, we need to divide it
 ;; and then multiply it by 5:
 ;;   - we can use right shift to perform division by 2
-;;   - for any number N, the value of (N/16)*5 = (N/2/2)+(N/2/2/2/2)
+;;   - for any number N, the value of (N/16)*5 = (N/4)+(N/16)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 CalculateDigitOffset subroutine
     ldx #1                   ; X register is the loop counter
@@ -509,7 +510,7 @@ CalculateDigitOffset subroutine
     sta Temp                 ; save the value of A into Temp
     lsr                      ; shift right (it is now N/8)
     lsr                      ; shift right (it is now N/16)
-    adc Temp                 ; add the value saved in Temp (N/16*N/4)
+    adc Temp                 ; add the value saved in Temp (N/16+N/4)
     sta TensDigitOffset,X    ; store A in TensDigitOffset+1 or TensDigitOffset
     dex                      ; X--
     bpl .PrepareScoreLoop    ; while X >= 0, loop to pass a second time
